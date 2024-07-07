@@ -18,7 +18,7 @@ LABEL org.opencontainers.image.title="mauriciodulce/php (${PHP_VARIATION})" \
     org.opencontainers.image.source="https://github.com/mauriciodulce/docker-php" \
     org.opencontainers.image.documentation="https://hub.docker.com/r/mauriciodulce/php/" \
     org.opencontainers.image.vendor="mauriciodulce" \
-    org.opencontainers.image.authors="Jay Rogers (@jaydrogers)" \
+    org.opencontainers.image.authors="Mauricio Dulce (@mauriciodulce)" \
     org.opencontainers.image.version="${REPOSITORY_BUILD_VERSION}" \
     org.opencontainers.image.licenses="GPL-3.0-or-later"
 

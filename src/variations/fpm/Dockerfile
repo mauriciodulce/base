@@ -7,8 +7,8 @@ ARG PHP_VARIATION='fpm'
 ##########
 FROM php:${PHP_VERSION}-${PHP_VARIATION}-${BASE_OS_VERSION}
 
-ARG DEPENDENCY_PACKAGES_ALPINE='shadow'
-ARG DEPENDENCY_PACKAGES_DEBIAN='zip'
+ARG DEPENDENCY_PACKAGES_ALPINE='fcgi shadow'
+ARG DEPENDENCY_PACKAGES_DEBIAN='libfcgi-bin zip'
 ARG DEPENDENCY_PHP_EXTENSIONS='opcache pcntl pdo_mysql pdo_pgsql redis zip'
 ARG REPOSITORY_BUILD_VERSION='dev'
 
@@ -17,8 +17,8 @@ LABEL org.opencontainers.image.title="mauriciodulce/php (${PHP_VARIATION})" \
     org.opencontainers.image.url="https://hub.docker.com/r/mauriciodulce/php/" \
     org.opencontainers.image.source="https://github.com/mauriciodulce/docker-php" \
     org.opencontainers.image.documentation="https://hub.docker.com/r/mauriciodulce/php/" \
-    org.opencontainers.image.vendor="ServerSideUp" \
-    org.opencontainers.image.authors="Jay Rogers (@jaydrogers)" \
+    org.opencontainers.image.vendor="mauriciodulce" \
+    org.opencontainers.image.authors="Mauricio Dulce (@mauriciodulce)" \
     org.opencontainers.image.version="${REPOSITORY_BUILD_VERSION}" \
     org.opencontainers.image.licenses="GPL-3.0-or-later"
 
@@ -70,6 +70,11 @@ RUN rm -rf /usr/local/etc/php-fpm.d/*.conf && \
     mkdir -p "${COMPOSER_HOME}" && \
     chown -R www-data:www-data "${COMPOSER_HOME}" && \
     \
+    # Ensure "php-fpm-healthcheck" is installed
+    echo "⬇️ Downloading php-fpm-healthcheck..." && \
+    curl -o /usr/local/bin/php-fpm-healthcheck https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/v0.5.0/php-fpm-healthcheck && \
+    chmod +x /usr/local/bin/php-fpm-healthcheck && \
+    \
     # Install default PHP extensions
     install-php-extensions "${DEPENDENCY_PHP_EXTENSIONS}"
 
@@ -92,3 +97,6 @@ WORKDIR ${APP_BASE_DIR}
 USER www-data
 
 CMD ["php-fpm"]
+
+HEALTHCHECK --interval=5s --timeout=3s --retries=3 \
+    CMD php-fpm-healthcheck || exit 1

@@ -71,9 +71,9 @@ LABEL org.opencontainers.image.title="mauriciodulce/php (${PHP_VARIATION})" \
     org.opencontainers.image.description="Supercharge your PHP experience. Based off the offical PHP images, mauriciodulce/php includes pre-configured PHP extensions and settings for enhanced performance and security. Optimized for Laravel and WordPress." \
     org.opencontainers.image.url="https://hub.docker.com/r/mauriciodulce/php/" \
     org.opencontainers.image.source="https://github.com/mauriciodulce/docker-php" \
-    org.opencontainers.image.documentation="https://hub.docker.com/r/mauriciodulce/php/docs/" \
-    org.opencontainers.image.vendor="ServerSideUp" \
-    org.opencontainers.image.authors="Jay Rogers (@jaydrogers)" \
+    org.opencontainers.image.documentation="https://hub.docker.com/r/mauriciodulce/php/" \
+    org.opencontainers.image.vendor="mauriciodulce" \
+    org.opencontainers.image.authors="Mauricio Dulce (@mauriciodulce)" \
     org.opencontainers.image.version="${REPOSITORY_BUILD_VERSION}" \
     org.opencontainers.image.licenses="GPL-3.0-or-later"
 
@@ -82,6 +82,7 @@ ENV APP_BASE_DIR=/var/www/html \
     COMPOSER_HOME=/composer \
     COMPOSER_MAX_PARALLEL_HTTP=24 \
     DISABLE_DEFAULT_CONFIG=false \
+    HEALTHCHECK_PATH="/healthcheck" \
     LOG_OUTPUT_LEVEL=warn \
     PHP_DATE_TIMEZONE="UTC" \
     PHP_DISPLAY_ERRORS=Off \
@@ -148,8 +149,6 @@ RUN docker-php-serversideup-dep-install-alpine "${DEPENDENCY_PACKAGES_ALPINE}" &
     # Install default PHP extensions
     install-php-extensions "${DEPENDENCY_PHP_EXTENSIONS}"
 
-EXPOSE 80 443
-
 ENTRYPOINT ["docker-php-serversideup-entrypoint"]
 
 STOPSIGNAL SIGTERM
@@ -163,3 +162,6 @@ USER www-data
 EXPOSE 8080 8443
 
 CMD ["unitd", "--no-daemon"]
+
+HEALTHCHECK --interval=5s --timeout=3s --retries=3 \
+    CMD [ "sh", "-c", "curl --insecure --silent --location --show-error --fail http://localhost:8080$HEALTHCHECK_PATH || exit 1" ]

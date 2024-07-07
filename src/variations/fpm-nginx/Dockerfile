@@ -62,8 +62,8 @@ LABEL org.opencontainers.image.title="mauriciodulce/php (${PHP_VARIATION})" \
     org.opencontainers.image.url="https://hub.docker.com/r/mauriciodulce/php/" \
     org.opencontainers.image.source="https://github.com/mauriciodulce/docker-php" \
     org.opencontainers.image.documentation="https://hub.docker.com/r/mauriciodulce/php/" \
-    org.opencontainers.image.vendor="ServerSideUp" \
-    org.opencontainers.image.authors="Jay Rogers (@jaydrogers)" \
+    org.opencontainers.image.vendor="mauriciodulce" \
+    org.opencontainers.image.authors="Mauricio Dulce (@mauriciodulce)" \
     org.opencontainers.image.version="${REPOSITORY_BUILD_VERSION}" \
     org.opencontainers.image.licenses="GPL-3.0-or-later"
 
@@ -73,6 +73,9 @@ ENV APP_BASE_DIR=/var/www/html \
     COMPOSER_MAX_PARALLEL_HTTP=24 \
     DISABLE_DEFAULT_CONFIG=false \
     LOG_OUTPUT_LEVEL=warn \
+    HEALTHCHECK_PATH="/healthcheck" \
+    NGINX_FASTCGI_BUFFERS="8 8k" \
+    NGINX_FASTCGI_BUFFER_SIZE="8k" \
     NGINX_SERVER_TOKENS=off \
     NGINX_WEBROOT=/var/www/html/public \
     PHP_DATE_TIMEZONE="UTC" \
@@ -168,6 +171,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 RUN docker-php-serversideup-set-file-permissions --owner www-data:www-data --service nginx
 
+# Fix S6 Overlay issues with Big Cloud PaaS (https://github.com/serversideup/docker-php/pull/376#issuecomment-2179262427)
+RUN chown -R www-data:www-data /run
+
 USER www-data
 
 EXPOSE 8080 8443
@@ -175,3 +181,6 @@ EXPOSE 8080 8443
 WORKDIR ${APP_BASE_DIR}
 
 ENTRYPOINT ["/init"]
+
+HEALTHCHECK --interval=5s --timeout=3s --retries=3 \
+    CMD [ "sh", "-c", "curl --insecure --silent --location --show-error --fail http://localhost:8080$HEALTHCHECK_PATH || exit 1" ]
