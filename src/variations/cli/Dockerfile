@@ -1,5 +1,5 @@
 ARG BASE_OS_VERSION='bookworm'
-ARG PHP_VERSION='8.3'
+ARG PHP_VERSION='8.4'
 ARG PHP_VARIATION='cli'
 
 ##########
@@ -8,17 +8,17 @@ ARG PHP_VARIATION='cli'
 FROM php:${PHP_VERSION}-${PHP_VARIATION}-${BASE_OS_VERSION}
 
 ARG DEPENDENCY_PACKAGES_ALPINE='shadow'
-ARG DEPENDENCY_PACKAGES_DEBIAN='zip'
+ARG DEPENDENCY_PACKAGES_DEBIAN='procps zip'
 ARG DEPENDENCY_PHP_EXTENSIONS='opcache pcntl pdo_mysql pdo_pgsql redis zip'
 ARG REPOSITORY_BUILD_VERSION='dev'
 
-LABEL org.opencontainers.image.title="mauriciodulce/php (${PHP_VARIATION})" \
-    org.opencontainers.image.description="Supercharge your PHP experience. Based off the offical PHP images, mauriciodulce/php includes pre-configured PHP extensions and settings for enhanced performance and security. Optimized for Laravel and WordPress." \
-    org.opencontainers.image.url="https://hub.docker.com/r/mauriciodulce/php/" \
-    org.opencontainers.image.source="https://github.com/mauriciodulce/docker-php" \
-    org.opencontainers.image.documentation="https://hub.docker.com/r/mauriciodulce/php/" \
-    org.opencontainers.image.vendor="mauriciodulce" \
-    org.opencontainers.image.authors="Mauricio Dulce (@mauriciodulce)" \
+LABEL org.opencontainers.image.title="serversideup/php (cli)" \
+    org.opencontainers.image.description="Supercharge your PHP experience. Based off the official PHP images, serversideup/php includes pre-configured PHP extensions and settings for enhanced performance and security. Optimized for Laravel and WordPress." \
+    org.opencontainers.image.url="https://serversideup.net/open-source/docker-php/" \
+    org.opencontainers.image.source="https://github.com/serversideup/docker-php" \
+    org.opencontainers.image.documentation="https://serversideup.net/open-source/docker-php/docs/" \
+    org.opencontainers.image.vendor="ServerSideUp" \
+    org.opencontainers.image.authors="Jay Rogers (@jaydrogers)" \
     org.opencontainers.image.version="${REPOSITORY_BUILD_VERSION}" \
     org.opencontainers.image.licenses="GPL-3.0-or-later"
 
@@ -58,6 +58,9 @@ RUN docker-php-serversideup-dep-install-alpine "${DEPENDENCY_PACKAGES_ALPINE}" &
     # Ensure /var/www/ has the correct permissions
     chown -R www-data:www-data /var/www && \
     chmod -R 755 /var/www && \
+    \
+    # Set the image version
+    echo "${REPOSITORY_BUILD_VERSION}" > /etc/serversideup-php-version && \
     \
     # Make composer cache directory
     mkdir -p "${COMPOSER_HOME}" && \

@@ -1,5 +1,6 @@
-listen 8443 http2 ssl default_server;
-listen [::]:8443 http2 ssl default_server;
+listen 8443 ssl default_server;
+listen [::]:8443 ssl default_server;
+http2 on;
 
 root $NGINX_WEBROOT;
 
@@ -21,7 +22,7 @@ client_max_body_size 2048M;
 # Healthchecks: Set /healthcheck to be the healthcheck URL
 location /healthcheck {
     access_log off;
-    
+
     # set max 5 seconds for healthcheck
     fastcgi_read_timeout 5s;
 
@@ -32,8 +33,26 @@ location /healthcheck {
 }
 
 # Have NGINX try searching for PHP files as well
+set $try_location @static;
+
+if ($request_method != GET) {
+    set $try_location @not_static;
+}
+
+if ($args ~* "live-preview=(.*)") {
+    set $try_location @not_static;
+}
+
 location / {
-    try_files $uri $uri/ /index.php?$query_string;
+    try_files $uri $try_location;
+}
+
+location @static {
+    try_files /static${uri}_$args.html $uri $uri/ /index.php?$args;
+}
+
+location @not_static {
+    try_files $uri /index.php?$args;
 }
 
 # Pass "*.php" files to PHP-FPM
@@ -42,8 +61,9 @@ location ~ \.php$ {
     fastcgi_index  index.php;
     fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
     include        fastcgi_params;
-    fastcgi_buffers $NGINX_FASTCGI_BUFFERS; 
+    fastcgi_buffers $NGINX_FASTCGI_BUFFERS;
     fastcgi_buffer_size $NGINX_FASTCGI_BUFFER_SIZE;
+    fastcgi_read_timeout $PHP_MAX_EXECUTION_TIME;
 }
 
 # additional config
