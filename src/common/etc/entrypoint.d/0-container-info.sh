@@ -9,14 +9,7 @@ fi
 
 echo '
 --------------------------------------------------------------------
- ____                             ____  _     _        _   _
-/ ___|  ___ _ ____   _____ _ __  / ___|(_) __| | ___  | | | |_ __
-\___ \ / _ \  __\ \ / / _ \  __| \___ \| |/ _` |/ _ \ | | | |  _ \
- ___) |  __/ |   \ V /  __/ |     ___) | | (_| |  __/ | |_| | |_) |
-|____/ \___|_|    \_/ \___|_|    |____/|_|\__,_|\___|  \___/| .__/
-                                                            |_|
-
-Brought to you by serversideup.net
+🚀 Welcome to the Server  Docker container!
 --------------------------------------------------------------------'
 
 PHP_OPCACHE_STATUS=$(php -r 'echo ini_get("opcache.enable");')
@@ -28,8 +21,7 @@ else
 fi
 
 echo '
-🙌 To support Server Side Up projects visit:
-https://serversideup.net/sponsor
+🙌 
 
 -------------------------------------
 ℹ️ Container Information
